@@ -139,4 +139,24 @@ describe('Transaction', () => {
     const restored = Transaction.restore(original.toProps());
     expect(restored.toProps()).toEqual(original.toProps());
   });
+
+  it('attaches a gateway id while staying PENDING', () => {
+    const txn = buildTransaction();
+    const result = txn.attachGatewayId('gw-999', new Date('2026-09-24T10:00:02Z'));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.gatewayTransactionId).toBe('gw-999');
+    expect(result.value.status).toBe(TransactionStatus.Pending);
+  });
+
+  it('cannot attach a gateway id once already final', () => {
+    const txn = buildTransaction();
+    const voidedResult = txn.void(new Date());
+    if (!voidedResult.ok) throw new Error('setup failed');
+
+    const result = voidedResult.value.attachGatewayId('gw-999', new Date());
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toBeInstanceOf(InvalidTransactionStateError);
+  });
 });
