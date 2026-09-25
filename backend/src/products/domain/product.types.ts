@@ -6,3 +6,7 @@ export interface Product {
   currency: string;
   imageUrl: string;
 }
+
+export interface ProductWithStock extends Product {
+  availableUnits: number;
+}

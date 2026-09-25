@@ -2,6 +2,7 @@ import {
   CustomerNotFoundError, GatewayRejectedError, GatewayUnavailableError,
   IdempotencyKeyReusedError, InvalidTransactionStateError, OutOfStockError,
   ProductNotFoundError, TransactionNotFoundError, UnexpectedError, ValidationError,
+  DeliveryNotFoundError,
 } from './domain-error';
 import { toHttpError } from './error-http.mapper';
 
@@ -17,6 +18,7 @@ describe('toHttpError', () => {
     [new GatewayRejectedError('bad token'), 502],
     [new GatewayUnavailableError(), 503],
     [new UnexpectedError(), 500],
+    [new DeliveryNotFoundError('txn-1'), 404],
   ])('maps %p to HTTP %i', (error, status) => {
     const body = toHttpError(error, 'req-1');
     expect(body.statusCode).toBe(status);

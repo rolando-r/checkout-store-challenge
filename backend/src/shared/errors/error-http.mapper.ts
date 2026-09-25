@@ -13,6 +13,7 @@ export const ERROR_HTTP_STATUS: Record<ErrorCode, number> = {
   [ErrorCode.GatewayUnavailable]: 503,
   [ErrorCode.RateLimited]: 429,
   [ErrorCode.Internal]: 500,
+  [ErrorCode.DeliveryNotFound]: 404,
 };
 
 export interface ErrorBody {

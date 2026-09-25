@@ -10,6 +10,7 @@ export const ErrorCode = {
   GatewayUnavailable: 'GATEWAY_UNAVAILABLE',
   RateLimited: 'RATE_LIMITED',
   Internal: 'INTERNAL_ERROR',
+  DeliveryNotFound: 'DELIVERY_NOT_FOUND',
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
