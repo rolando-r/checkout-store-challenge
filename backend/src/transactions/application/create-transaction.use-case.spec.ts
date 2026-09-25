@@ -47,12 +47,20 @@ const input: CreateTransactionInput = {
 
 const build = () => {
   const deps = {
-    products: { findById: jest.fn().mockResolvedValue(product) } as jest.Mocked<ProductRepositoryPort>,
+    products: {
+      findAll: jest.fn(),
+      findById: jest.fn().mockResolvedValue(product),
+    } as jest.Mocked<ProductRepositoryPort>,
     stock: {
+      listAll: jest.fn(),
       getAvailable: jest.fn().mockResolvedValue(10),
       decrementIfAvailable: jest.fn(),
     } as jest.Mocked<StockRepositoryPort>,
-    customers: { exists: jest.fn().mockResolvedValue(true) } as jest.Mocked<CustomerRepositoryPort>,
+    customers: {
+      exists: jest.fn().mockResolvedValue(true),
+      findByEmail: jest.fn(),
+      save: jest.fn(),
+    } as jest.Mocked<CustomerRepositoryPort>,
     transactions: {
       save: jest.fn().mockResolvedValue(undefined),
       findById: jest.fn().mockResolvedValue(null),
@@ -84,10 +92,14 @@ describe('CreateTransactionUseCase', () => {
       totalAmountInCents: 308_000_00,
     });
     expect(deps.transactions.save).toHaveBeenCalledWith(output.transaction);
-    expect(deps.idempotency.save).toHaveBeenCalledWith('create-transaction', 'key-1', {
-      requestHash: expect.any(String),
-      transactionId: 'txn-1',
-    });
+    expect(deps.idempotency.save).toHaveBeenCalledWith(
+      'create-transaction',
+      'key-1',
+      {
+        requestHash: expect.any(String),
+        transactionId: 'txn-1',
+      },
+    );
   });
 
   it('trims the address and drops a blank postal code', async () => {
@@ -129,7 +141,10 @@ describe('CreateTransactionUseCase', () => {
 
   it('rejects the same key with a different payload', async () => {
     const { deps, useCase } = build();
-    deps.idempotency.find.mockResolvedValue({ requestHash: 'other', transactionId: 'txn-9' });
+    deps.idempotency.find.mockResolvedValue({
+      requestHash: 'other',
+      transactionId: 'txn-9',
+    });
 
     const error = unwrapErr(await useCase.execute(input));
 
@@ -140,7 +155,9 @@ describe('CreateTransactionUseCase', () => {
   it('fails when the stored transaction of a replayed key is missing', async () => {
     const { deps, useCase } = build();
     await useCase.execute(input);
-    deps.idempotency.find.mockResolvedValue(deps.idempotency.save.mock.calls[0][2]);
+    deps.idempotency.find.mockResolvedValue(
+      deps.idempotency.save.mock.calls[0][2],
+    );
     deps.transactions.findById.mockResolvedValue(null);
 
     const error = unwrapErr(await useCase.execute(input));
@@ -152,7 +169,9 @@ describe('CreateTransactionUseCase', () => {
     const { deps, useCase } = build();
     deps.products.findById.mockResolvedValue(null);
 
-    expect(unwrapErr(await useCase.execute(input))).toBeInstanceOf(ProductNotFoundError);
+    expect(unwrapErr(await useCase.execute(input))).toBeInstanceOf(
+      ProductNotFoundError,
+    );
     expect(deps.transactions.save).not.toHaveBeenCalled();
   });
 
@@ -160,7 +179,9 @@ describe('CreateTransactionUseCase', () => {
     const { deps, useCase } = build();
     deps.customers.exists.mockResolvedValue(false);
 
-    expect(unwrapErr(await useCase.execute(input))).toBeInstanceOf(CustomerNotFoundError);
+    expect(unwrapErr(await useCase.execute(input))).toBeInstanceOf(
+      CustomerNotFoundError,
+    );
     expect(deps.transactions.save).not.toHaveBeenCalled();
   });
 
@@ -175,22 +196,30 @@ describe('CreateTransactionUseCase', () => {
     expect(deps.transactions.save).not.toHaveBeenCalled();
   });
 
-  const invalidCases: Array<[string, Partial<CreateTransactionInput>, string]> = [
-    ['a quantity below 1', { quantity: 0 }, 'quantity'],
-    ['a quantity above the limit', { quantity: 6 }, 'quantity'],
-    ['a fractional quantity', { quantity: 1.5 }, 'quantity'],
-    ['a blank idempotency key', { idempotencyKey: '  ' }, 'Idempotency-Key'],
-    ['a blank city', { deliveryAddress: { ...address, city: ' ' } }, 'deliveryAddress.city'],
-  ];
+  const invalidCases: Array<[string, Partial<CreateTransactionInput>, string]> =
+    [
+      ['a quantity below 1', { quantity: 0 }, 'quantity'],
+      ['a quantity above the limit', { quantity: 6 }, 'quantity'],
+      ['a fractional quantity', { quantity: 1.5 }, 'quantity'],
+      ['a blank idempotency key', { idempotencyKey: '  ' }, 'Idempotency-Key'],
+      [
+        'a blank city',
+        { deliveryAddress: { ...address, city: ' ' } },
+        'deliveryAddress.city',
+      ],
+    ];
 
-  it.each(invalidCases)('rejects %s before touching any repository', async (_label, override, field) => {
-    const { deps, useCase } = build();
+  it.each(invalidCases)(
+    'rejects %s before touching any repository',
+    async (_label, override, field) => {
+      const { deps, useCase } = build();
 
-    const error = unwrapErr(await useCase.execute({ ...input, ...override }));
+      const error = unwrapErr(await useCase.execute({ ...input, ...override }));
 
-    expect(error).toBeInstanceOf(ValidationError);
-    expect(error.details).toEqual([expect.objectContaining({ field })]);
-    expect(deps.idempotency.find).not.toHaveBeenCalled();
-    expect(deps.products.findById).not.toHaveBeenCalled();
-  });
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error.details).toEqual([expect.objectContaining({ field })]);
+      expect(deps.idempotency.find).not.toHaveBeenCalled();
+      expect(deps.products.findById).not.toHaveBeenCalled();
+    },
+  );
 });

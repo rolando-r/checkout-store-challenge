@@ -86,3 +86,10 @@ export class UnexpectedError extends DomainError {
     super('Unexpected error');
   }
 }
+
+export class DeliveryNotFoundError extends DomainError {
+  readonly code = ErrorCode.DeliveryNotFound;
+  constructor(transactionId: string) {
+    super(`No delivery found for transaction ${transactionId}`);
+  }
+}
