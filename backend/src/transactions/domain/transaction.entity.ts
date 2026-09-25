@@ -120,6 +120,27 @@ export class Transaction {
     );
   }
 
+  /** Records the gateway's charge id while still PENDING, without deciding
+   * the final outcome yet. Lets a retry resume by polling instead of
+   * charging the card a second time. */
+  attachGatewayId(
+    gatewayTransactionId: string,
+    now: Date,
+  ): Result<Transaction, InvalidTransactionStateError> {
+    if (!this.isPending()) {
+      return err(
+        new InvalidTransactionStateError(this.props.status, TransactionStatus.Pending),
+      );
+    }
+    return ok(
+      new Transaction({
+        ...this.props,
+        gatewayTransactionId,
+        updatedAt: now,
+      }),
+    );
+  }
+
   /** Cancels a transaction the customer abandoned before any gateway call. */
   void(now: Date): Result<Transaction, InvalidTransactionStateError> {
     if (!this.isPending()) {
