@@ -19,6 +19,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk node_modules/jest/bin/jest.js --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:integration": "jest --config ./test/jest-integration.json --runInBand",
     "typeorm": "typeorm-ts-node-commonjs -d src/database/data-source.ts",
     "migration:generate": "npm run typeorm -- migration:generate",
     "migration:run": "npm run typeorm -- migration:run",
@@ -67,6 +68,7 @@
     ],
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
+    "testPathIgnorePatterns": ["/node_modules/", "\\.integration-spec\\.ts$"],
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
@@ -81,7 +83,13 @@
       "!database/**",
       "!**/ports/**",
       "!**/*.types.ts",
-      "!**/testing/**"
+      "!**/testing/**",
+      "!**/typeorm-product.repository.ts",
+      "!**/typeorm-stock.repository.ts",
+      "!**/typeorm-customer.repository.ts",
+      "!**/typeorm-delivery.repository.ts",
+      "!**/typeorm-transaction.repository.ts",
+      "!**/typeorm-idempotency-store.ts"
     ],
     "coverageThreshold": {
       "global": {
