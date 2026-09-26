@@ -1,0 +1,19 @@
+:root {
+  --color-ink: #1C1B1F;
+  --color-bg: #FAF9F6;
+  --color-primary: #2F5D50;
+  --color-primary-hover: #3D7A6A;
+  --color-stone: #E8E4DB;
+  --color-error: #C1443C;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-ui: 'Inter', -apple-system, sans-serif;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 40px;
+
+  --radius: 6px;
+}
