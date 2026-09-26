@@ -9,6 +9,9 @@ export class StockOrmEntity {
   @Column('int')
   quantity!: number;
 
+  @Column({ name: 'updated_at', type: 'timestamptz' })
+  updatedAt!: Date;
+
   @OneToOne(() => ProductOrmEntity, (product) => product.stock)
   @JoinColumn({ name: 'product_id' })
   product?: ProductOrmEntity;
