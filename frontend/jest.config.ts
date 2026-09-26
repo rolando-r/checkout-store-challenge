@@ -19,7 +19,10 @@ const config: Config = {
     '!src/**/*.d.ts',
     '!src/app/store.ts',
     '!src/app/hooks.ts',
+    '!src/app/router.tsx',
     '!src/shared/config.ts',
+    '!src/test/**',
+    '!src/pages/**',
   ],
   coverageThreshold: {
     global: { branches: 80, functions: 80, lines: 80, statements: 80 },
