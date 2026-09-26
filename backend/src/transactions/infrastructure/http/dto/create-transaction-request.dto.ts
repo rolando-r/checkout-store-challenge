@@ -1,5 +1,6 @@
+import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsString, IsUUID, Max, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, IsUUID, Max, Min, ValidateNested } from 'class-validator';
 
 class DeliveryAddressDto {
   @ApiProperty() @IsString() addressLine!: string;
@@ -12,5 +13,9 @@ export class CreateTransactionRequestDto {
   @ApiProperty() @IsUUID() productId!: string;
   @ApiProperty() @IsUUID() customerId!: string;
   @ApiProperty() @IsInt() @Min(1) @Max(5) quantity!: number;
-  @ApiProperty({ type: DeliveryAddressDto }) deliveryAddress!: DeliveryAddressDto;
+
+  @ApiProperty({ type: DeliveryAddressDto })
+  @ValidateNested()
+  @Type(() => DeliveryAddressDto)
+  deliveryAddress!: DeliveryAddressDto;
 }
