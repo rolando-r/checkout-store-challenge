@@ -17,11 +17,9 @@ export interface GatewayConfig {
   baseUrl: string;
   publicKey: string;
   privateKey: string;
-  integritySecret?: string;
+  integritySecret: string;
 }
 
-/** Adapter for the sandbox payment gateway's REST API. Named generically
- * per the challenge's instructions not to reference the provider by name. */
 export class HttpPaymentGateway implements PaymentGatewayPort {
   constructor(private readonly config: GatewayConfig) {}
 
@@ -38,7 +36,7 @@ export class HttpPaymentGateway implements PaymentGatewayPort {
         body: JSON.stringify({
           amount_in_cents: request.amountInCents,
           currency: request.currency,
-          customer_email: undefined,
+          customer_email: request.customerEmail,
           reference: request.reference,
           payment_method: {
             type: 'CARD',
@@ -50,19 +48,19 @@ export class HttpPaymentGateway implements PaymentGatewayPort {
         }),
       });
 
+      const body = await response.json();
       if (!response.ok) {
-        return err(new GatewayRejectedError(`HTTP ${response.status}`));
+        return err(new GatewayRejectedError(body?.error?.reason ?? `HTTP ${response.status}`));
       }
 
-      const body = await response.json();
       const data = body.data;
       return ok({
         gatewayTransactionId: data.id,
         status: mapStatus(data.status),
         statusMessage: data.status_message ?? data.status,
         card: {
-          brand: data.payment_method?.extra?.brand ?? 'UNKNOWN',
-          last4: data.payment_method?.extra?.last_four ?? '0000',
+          brand: data.payment_method?.brand ?? 'UNKNOWN',
+          last4: data.payment_method?.last_four ?? '0000',
         },
       });
     } catch {
@@ -75,9 +73,11 @@ export class HttpPaymentGateway implements PaymentGatewayPort {
       const response = await fetch(`${this.config.baseUrl}/transactions/${gatewayTransactionId}`, {
         headers: { Authorization: `Bearer ${this.config.publicKey}` },
       });
-      if (!response.ok) return err(new GatewayRejectedError(`HTTP ${response.status}`));
-
       const body = await response.json();
+      if (!response.ok) {
+        return err(new GatewayRejectedError(body?.error?.reason ?? `HTTP ${response.status}`));
+      }
+
       const data = body.data;
       return ok({ status: mapStatus(data.status), statusMessage: data.status_message ?? data.status });
     } catch {
@@ -88,8 +88,10 @@ export class HttpPaymentGateway implements PaymentGatewayPort {
   async getAcceptanceToken(): AsyncResult<string, GatewayError> {
     try {
       const response = await fetch(`${this.config.baseUrl}/merchants/${this.config.publicKey}`);
-      if (!response.ok) return err(new GatewayRejectedError(`HTTP ${response.status}`));
       const body = await response.json();
+      if (!response.ok) {
+        return err(new GatewayRejectedError(body?.error?.reason ?? `HTTP ${response.status}`));
+      }
       return ok(body.data.presigned_acceptance.acceptance_token);
     } catch {
       return err(new GatewayUnavailableError());
@@ -97,9 +99,8 @@ export class HttpPaymentGateway implements PaymentGatewayPort {
   }
 
   private buildSignature(reference: string, amountInCents: number, currency: string): string {
-    const secret = this.config.integritySecret ?? '';
     return createHash('sha256')
-      .update(`${reference}${amountInCents}${currency}${secret}`)
+      .update(`${reference}${amountInCents}${currency}${this.config.integritySecret}`)
       .digest('hex');
   }
 }
