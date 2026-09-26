@@ -1,0 +1,13 @@
+export const PRODUCT_REPOSITORY = Symbol('PRODUCT_REPOSITORY');
+export const STOCK_REPOSITORY = Symbol('STOCK_REPOSITORY');
+export const CUSTOMER_REPOSITORY = Symbol('CUSTOMER_REPOSITORY');
+export const DELIVERY_REPOSITORY = Symbol('DELIVERY_REPOSITORY');
+export const TRANSACTION_REPOSITORY = Symbol('TRANSACTION_REPOSITORY');
+export const IDEMPOTENCY_STORE = Symbol('IDEMPOTENCY_STORE');
+export const SETTLEMENT_REPOSITORY = Symbol('SETTLEMENT_REPOSITORY');
+export const PAYMENT_GATEWAY = Symbol('PAYMENT_GATEWAY');
+export const CLOCK = Symbol('CLOCK');
+export const ID_GENERATOR = Symbol('ID_GENERATOR');
+export const SLEEPER = Symbol('SLEEPER');
+export const FEES_CONFIG = Symbol('FEES_CONFIG');
+export const POLL_CONFIG = Symbol('POLL_CONFIG');

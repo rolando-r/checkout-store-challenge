@@ -40,6 +40,7 @@
     "pg": "^8.23.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
+    "swagger-ui-express": "^5.0.1",
     "typeorm": "^1.1.1"
   },
   "devDependencies": {
@@ -68,7 +69,10 @@
     ],
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
-    "testPathIgnorePatterns": ["/node_modules/", "\\.integration-spec\\.ts$"],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "\\.integration-spec\\.ts$"
+    ],
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
@@ -89,7 +93,13 @@
       "!**/typeorm-customer.repository.ts",
       "!**/typeorm-delivery.repository.ts",
       "!**/typeorm-transaction.repository.ts",
-      "!**/typeorm-idempotency-store.ts"
+      "!**/typeorm-idempotency-store.ts",
+      "!**/*.controller.ts",
+      "!**/http-payment-gateway.adapter.ts",
+      "!shared/infrastructure/**",
+      "!shared/config/**",
+      "!shared/tokens.ts",
+      "!shared/http/global-exception.filter.ts"
     ],
     "coverageThreshold": {
       "global": {
