@@ -3,9 +3,18 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import {
-  CLOCK, CUSTOMER_REPOSITORY, FEES_CONFIG, ID_GENERATOR, IDEMPOTENCY_STORE,
-  PAYMENT_GATEWAY, POLL_CONFIG, PRODUCT_REPOSITORY, SETTLEMENT_REPOSITORY,
-  SLEEPER, STOCK_REPOSITORY, TRANSACTION_REPOSITORY,
+  CLOCK,
+  CUSTOMER_REPOSITORY,
+  FEES_CONFIG,
+  ID_GENERATOR,
+  IDEMPOTENCY_STORE,
+  PAYMENT_GATEWAY,
+  POLL_CONFIG,
+  PRODUCT_REPOSITORY,
+  SETTLEMENT_REPOSITORY,
+  SLEEPER,
+  STOCK_REPOSITORY,
+  TRANSACTION_REPOSITORY,
 } from '../shared/tokens';
 import { SystemClock } from '../shared/infrastructure/system-clock';
 import { TimerSleeper } from '../shared/infrastructure/timer-sleeper';
@@ -22,6 +31,7 @@ import { TypeOrmIdempotencyStore } from './infrastructure/persistence/typeorm-id
 import { TypeOrmSettlementRepository } from './infrastructure/persistence/typeorm-settlement.repository';
 import { TypeOrmTransactionRepository } from './infrastructure/persistence/typeorm-transaction.repository';
 import { TransactionsController } from './infrastructure/http/transactions.controller';
+import { GetCheckoutConfigUseCase } from './application/get-checkout-config.use-case';
 
 @Module({
   imports: [
@@ -141,6 +151,17 @@ import { TransactionsController } from './infrastructure/http/transactions.contr
         SLEEPER,
         POLL_CONFIG,
       ],
+    },
+    {
+      provide: GetCheckoutConfigUseCase,
+      useFactory: (gateway, fees, config: ConfigService) =>
+        new GetCheckoutConfigUseCase({
+          gateway,
+          fees,
+          publicKey: config.getOrThrow('GATEWAY_PUBLIC_KEY'),
+          currency: 'COP',
+        }),
+      inject: [PAYMENT_GATEWAY, FEES_CONFIG, ConfigService],
     },
   ],
 })
