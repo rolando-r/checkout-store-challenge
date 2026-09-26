@@ -13,6 +13,7 @@ import { Transaction } from '../domain/transaction.entity';
 import { TransactionStatus } from '../domain/transaction-status';
 import { FakePaymentGateway } from './testing/fake-payment-gateway';
 import { ProcessPaymentUseCase } from './process-payment.use-case';
+import { CustomerRepositoryPort } from '../../customers/domain/ports/customer.repository.port';
 
 const NOW = new Date('2026-09-24T10:00:00Z');
 
@@ -34,19 +35,31 @@ const build = (initial: Transaction = buildTransaction()) => {
     findById: jest.fn().mockResolvedValue(initial),
     save: jest.fn().mockResolvedValue(undefined),
   };
+  const customers: jest.Mocked<CustomerRepositoryPort> = {
+    exists: jest.fn(),
+    findByEmail: jest.fn(),
+    findById: jest.fn().mockResolvedValue({
+      id: 'cust-1',
+      fullName: 'Ana Pérez',
+      email: 'ana@example.com',
+      phone: '3001234567',
+    }),
+    save: jest.fn(),
+  };
   const settlement: jest.Mocked<SettlementRepositoryPort> = {
     commitOutcome: jest.fn().mockResolvedValue(ok(undefined)),
   };
   const sleeper = { sleep: jest.fn().mockResolvedValue(undefined) };
   const deps = {
     transactions,
+    customers,
     gateway,
     settlement,
     clock: { now: () => NOW },
     sleeper,
     poll: { intervalMs: 10, maxAttempts: 3 },
   };
-  return { deps, gateway, transactions, settlement, sleeper, useCase: new ProcessPaymentUseCase(deps) };
+  return { deps, gateway, transactions, customers, settlement, sleeper, useCase: new ProcessPaymentUseCase(deps) };
 };
 
 const input = {
@@ -173,5 +186,24 @@ describe('ProcessPaymentUseCase', () => {
     const error = unwrapErr(await useCase.execute(input));
 
     expect(error).toBeInstanceOf(InvalidTransactionStateError);
+  });
+
+  it('includes the customer email when charging', async () => {
+    const { gateway, useCase } = build();
+    gateway.chargeQueue.push(FakePaymentGateway.approvedCharge());
+
+    await useCase.execute(input);
+
+    expect(gateway.chargeCalls[0].customerEmail).toBe('ana@example.com');
+  });
+
+  it('sends an empty email when the customer cannot be found', async () => {
+    const { gateway, customers, useCase } = build();
+    customers.findById.mockResolvedValue(null);
+    gateway.chargeQueue.push(FakePaymentGateway.approvedCharge());
+
+    await useCase.execute(input);
+
+    expect(gateway.chargeCalls[0].customerEmail).toBe('');
   });
 });

@@ -10,6 +10,7 @@ export interface ChargeRequest {
   reference: string;
   amountInCents: number;
   currency: string;
+  customerEmail: string;
   cardToken: string;
   acceptanceToken: string;
   installments: number;

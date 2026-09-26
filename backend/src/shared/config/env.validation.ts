@@ -19,6 +19,9 @@ class EnvVars {
 
   @IsInt() @Min(0)
   DELIVERY_FEE_IN_CENTS!: number;
+
+  @IsString() @IsNotEmpty()
+  GATEWAY_INTEGRITY_SECRET!: string;
 }
 
 /** Fails fast at startup instead of at the first request if config is missing. */

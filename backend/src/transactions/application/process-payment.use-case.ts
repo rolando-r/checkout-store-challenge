@@ -17,6 +17,7 @@ import { SettlementRepositoryPort } from '../domain/ports/settlement.repository.
 import { TransactionRepositoryPort } from '../domain/ports/transaction.repository.port';
 import { CardSummary, Transaction } from '../domain/transaction.entity';
 import { TransactionStatus } from '../domain/transaction-status';
+import { CustomerRepositoryPort } from '../../customers/domain/ports/customer.repository.port';
 
 export interface ProcessPaymentInput {
   transactionId: string;
@@ -45,6 +46,7 @@ export interface PollConfig {
 
 export interface ProcessPaymentDeps {
   transactions: TransactionRepositoryPort;
+  customers: CustomerRepositoryPort;
   gateway: PaymentGatewayPort;
   settlement: SettlementRepositoryPort;
   clock: ClockPort;
@@ -105,10 +107,12 @@ export class ProcessPaymentUseCase {
       }));
     }
 
+    const customer = await this.deps.customers.findById(transaction.customerId);
     const chargeResult = await this.deps.gateway.charge({
       reference: transaction.reference,
       amountInCents: transaction.quote.totalAmountInCents,
       currency: 'COP',
+      customerEmail: customer?.email ?? '',
       cardToken: input.cardToken,
       acceptanceToken: input.acceptanceToken,
       installments: input.installments,

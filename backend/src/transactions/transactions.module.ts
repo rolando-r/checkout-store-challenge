@@ -34,17 +34,20 @@ import { TransactionsController } from './infrastructure/http/transactions.contr
   providers: [
     {
       provide: TRANSACTION_REPOSITORY,
-      useFactory: (repo: Repository<TransactionOrmEntity>) => new TypeOrmTransactionRepository(repo),
+      useFactory: (repo: Repository<TransactionOrmEntity>) =>
+        new TypeOrmTransactionRepository(repo),
       inject: [getRepositoryToken(TransactionOrmEntity)],
     },
     {
       provide: IDEMPOTENCY_STORE,
-      useFactory: (repo: Repository<IdempotencyKeyOrmEntity>) => new TypeOrmIdempotencyStore(repo),
+      useFactory: (repo: Repository<IdempotencyKeyOrmEntity>) =>
+        new TypeOrmIdempotencyStore(repo),
       inject: [getRepositoryToken(IdempotencyKeyOrmEntity)],
     },
     {
       provide: SETTLEMENT_REPOSITORY,
-      useFactory: (dataSource: DataSource) => new TypeOrmSettlementRepository(dataSource),
+      useFactory: (dataSource: DataSource) =>
+        new TypeOrmSettlementRepository(dataSource),
       inject: [DataSource],
     },
     {
@@ -54,6 +57,7 @@ import { TransactionsController } from './infrastructure/http/transactions.contr
           baseUrl: config.getOrThrow('GATEWAY_BASE_URL'),
           publicKey: config.getOrThrow('GATEWAY_PUBLIC_KEY'),
           privateKey: config.getOrThrow('GATEWAY_PRIVATE_KEY'),
+          integritySecret: config.getOrThrow('GATEWAY_INTEGRITY_SECRET'),
         }),
       inject: [ConfigService],
     },
@@ -77,18 +81,66 @@ import { TransactionsController } from './infrastructure/http/transactions.contr
     },
     {
       provide: CreateTransactionUseCase,
-      useFactory: (products, stock, customers, transactions, idempotency, clock, ids, fees) =>
-        new CreateTransactionUseCase({ products, stock, customers, transactions, idempotency, clock, ids, fees }),
+      useFactory: (
+        products,
+        stock,
+        customers,
+        transactions,
+        idempotency,
+        clock,
+        ids,
+        fees,
+      ) =>
+        new CreateTransactionUseCase({
+          products,
+          stock,
+          customers,
+          transactions,
+          idempotency,
+          clock,
+          ids,
+          fees,
+        }),
       inject: [
-        PRODUCT_REPOSITORY, STOCK_REPOSITORY, CUSTOMER_REPOSITORY, TRANSACTION_REPOSITORY,
-        IDEMPOTENCY_STORE, CLOCK, ID_GENERATOR, FEES_CONFIG,
+        PRODUCT_REPOSITORY,
+        STOCK_REPOSITORY,
+        CUSTOMER_REPOSITORY,
+        TRANSACTION_REPOSITORY,
+        IDEMPOTENCY_STORE,
+        CLOCK,
+        ID_GENERATOR,
+        FEES_CONFIG,
       ],
     },
     {
       provide: ProcessPaymentUseCase,
-      useFactory: (transactions, gateway, settlement, clock, sleeper, poll) =>
-        new ProcessPaymentUseCase({ transactions, gateway, settlement, clock, sleeper, poll }),
-      inject: [TRANSACTION_REPOSITORY, PAYMENT_GATEWAY, SETTLEMENT_REPOSITORY, CLOCK, SLEEPER, POLL_CONFIG],
+      useFactory: (
+        transactions,
+        customers,
+        gateway,
+        settlement,
+        clock,
+        sleeper,
+        poll,
+      ) =>
+        new ProcessPaymentUseCase({
+          transactions,
+          customers,
+          gateway,
+          settlement,
+          clock,
+          sleeper,
+          poll,
+        }),
+      inject: [
+        TRANSACTION_REPOSITORY,
+        CUSTOMER_REPOSITORY,
+        PAYMENT_GATEWAY,
+        SETTLEMENT_REPOSITORY,
+        CLOCK,
+        SLEEPER,
+        POLL_CONFIG,
+      ],
     },
   ],
 })
