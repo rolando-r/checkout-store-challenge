@@ -40,6 +40,7 @@ export function useCheckoutConfig() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchConfig();
   }, [fetchConfig]);
 
