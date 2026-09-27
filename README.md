@@ -16,39 +16,94 @@ stock updated at the end.
 
 ## Quick start
 
-`docker-compose.yml` at the repo root runs Postgres (and optionally the
-backend) for you, so you don't need Postgres installed locally.
+`docker-compose.yml` at the repo root provides PostgreSQL, the backend API, and the production-built frontend.
 
-### Option A — Postgres in Docker, apps on the host (recommended for dev)
+### Option A — Apps on the host, Postgres in Docker (recommended for development)
 
 ```bash
-# 1. Start just the database
+# 1. Start the database
 docker compose up -d postgres
 
 # 2. Backend
 cd backend
 npm install
-cp .env.example .env          # already points at the compose Postgres above
+cp .env.example .env
 npm run migration:run
 npm run seed
-npm run start:dev             # http://localhost:3000  (Swagger UI at /docs)
+npm run start:dev
+# http://localhost:3000
+# Swagger: http://localhost:3000/docs
 
 # 3. Frontend, in a second terminal
 cd frontend
 npm install
-cp .env.example .env          # points at the backend above by default
-npm run dev                    # http://localhost:5173
+cp .env.example .env
+npm run dev
+# http://localhost:5173
 ```
 
-Running the backend on the host (rather than in Docker) gives you hot
-reload via `start:dev` — better for active development.
+Running the applications on the host provides hot reload and is better suited
+for active development.
 
-### Option B — Postgres + backend both in Docker
+### Option B — Full stack in Docker
 
 ```bash
-docker compose up -d --build   # starts postgres and the backend container
+docker compose up -d --build
+```
 
-# migrations/seed still run from the host, against the now-published port:
+This starts:
+
+| Service     | Container  |   Port |
+| ----------- | ---------- | -----: |
+| PostgreSQL  | `postgres` | `5432` |
+| Backend API | `backend`  | `3000` |
+| Frontend    | `frontend` | `8080` |
+
+The frontend is built with Vite and served as a static application through
+Nginx.
+
+Open the application at:
+
+```text
+http://localhost:8080
+```
+
+The frontend Docker image uses a multi-stage build:
+
+1. **Build stage** — Node.js installs dependencies and runs `npm run build`.
+2. **Runtime stage** — Nginx serves the generated `dist/` files.
+
+The frontend build accepts these Vite variables as Docker build arguments:
+
+```text
+VITE_API_BASE_URL
+VITE_WOMPI_API_URL
+```
+
+For example:
+
+```bash
+docker compose build \
+  --build-arg VITE_API_BASE_URL=http://localhost:3000 \
+  --build-arg VITE_WOMPI_API_URL=https://api-sandbox.co.uat.wompi.dev/v1 \
+  frontend
+
+docker compose up -d
+```
+
+The Nginx configuration also provides:
+
+* SPA fallback to `index.html`, allowing refreshes on `/checkout`,
+  `/summary`, and `/result`.
+* Long-term caching for Vite content-hashed assets.
+* `Cache-Control: no-cache` for the SPA entry point.
+* Security headers including CSP, `X-Content-Type-Options`,
+  `X-Frame-Options`, `Referrer-Policy`, and `Permissions-Policy.
+
+The backend container does not automatically run migrations or seed data.
+Run those commands from the host after the containers are started:
+
+```bash
 cd backend
 npm install
 cp .env.example .env
@@ -56,15 +111,24 @@ npm run migration:run
 npm run seed
 ```
 
-The `backend` service builds from `backend/Dockerfile` (a production build —
-`node dist/main`, no hot reload) and reads `backend/.env` via `env_file` for
-the gateway keys, fees, etc.; `DATABASE_URL` is overridden by
-`docker-compose.yml` to point at the `postgres` service's Docker network
-hostname instead of `localhost`. The backend container does **not** run
-migrations or seeding on startup, so that step is still manual either way.
+### Option C — Frontend only with Docker
 
-The frontend isn't containerized in `docker-compose.yml` — run it on the
-host with `npm run dev` as in Option A.
+The frontend can also be built independently from the repository root:
+
+```bash
+docker build \
+  --build-arg VITE_API_BASE_URL=http://localhost:3000 \
+  --build-arg VITE_WOMPI_API_URL=https://api-sandbox.co.uat.wompi.dev/v1 \
+  -t checkout-store-frontend ./frontend
+
+docker run --rm -p 8080:8080 checkout-store-frontend
+```
+
+Then open:
+
+```text
+http://localhost:8080
+```
 
 ## API documentation
 
@@ -98,15 +162,21 @@ e2e suites. Coverage tables live in each app's README:
 
 ## Deployment
 
-- `docker-compose.yml` is a **local development convenience only**
-  (hardcoded Postgres password, no TLS, port 5432 published to the host) —
-  it is not meant to be run as-is in production.
-- Backend: `backend/Dockerfile` (multi-stage build) — point at a managed
-  Postgres instance (e.g. AWS RDS) with real credentials via secrets, and
-  serve behind HTTPS.
-- Frontend: static build (`npm run build` in `frontend/`) deployable to any
-  static host/CDN, pointed at the deployed backend via `VITE_API_BASE_URL`.
-- Deployed URLs: _add here once published_.
+* `docker-compose.yml` is a **local development convenience only**
+  (hardcoded Postgres password, no TLS, and port 5432 published to the host).
+  It is not intended to be used as-is in production.
+* **Backend:** `backend/Dockerfile` uses a multi-stage production build.
+  Point it at a managed PostgreSQL instance with real credentials supplied
+  through secrets and serve it behind HTTPS.
+* **Frontend:** `frontend/Dockerfile` uses a multi-stage Node.js + Nginx build.
+  The resulting image contains only the compiled Vite application and Nginx
+  runtime.
+* **Frontend configuration:** `VITE_API_BASE_URL` and `VITE_WOMPI_API_URL`
+  are injected at build time because Vite embeds `VITE_*` variables into the
+  generated frontend bundle.
+* **Nginx:** the production frontend serves on port `8080`, provides SPA
+  routing fallback, caches hashed assets, and applies security headers.
+* **Deployed URLs:** *add here once published*.
 
 ## Security
 
