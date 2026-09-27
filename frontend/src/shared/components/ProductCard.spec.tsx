@@ -45,6 +45,21 @@ describe('ProductCard', () => {
     expect(increment).toBeDisabled();
   });
 
+  it('caps the selectable quantity at the per-order limit even when more stock is available', async () => {
+    // 11 units in stock, but the backend rejects any order over
+    // MAX_QUANTITY_PER_ORDER (5) — the stepper must stop there too, or the
+    // customer only finds out after filling in all their checkout details.
+    renderCard({ availableUnits: 11 });
+    const increment = screen.getByRole('button', { name: 'Increase quantity' });
+
+    for (let i = 0; i < 4; i++) {
+      await userEvent.click(increment);
+    }
+
+    expect(screen.getByTestId('quantity-value')).toHaveTextContent('5');
+    expect(increment).toBeDisabled();
+  });
+
   it('disables buying when the product is out of stock', () => {
     renderCard({ availableUnits: 0 });
     expect(screen.getByText('Out of stock')).toBeInTheDocument();

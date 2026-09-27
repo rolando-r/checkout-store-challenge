@@ -1,10 +1,19 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { checkoutReset } from '../features/checkout/checkoutSlice';
-import { paymentReset, TransactionStatus } from '../features/payment/paymentSlice';
+import { paymentReset, transactionStatusUpdated, TransactionStatus } from '../features/payment/paymentSlice';
 import { productReset } from '../features/product/productSlice';
+import { apiClient } from '../shared/api/client';
 import { formatMoney } from '../shared/lib/money';
 import styles from './ResultPage.module.css';
+
+const POLL_INTERVAL_MS = 3000;
+
+interface TransactionStatusResponse {
+  status: TransactionStatus;
+  statusMessage?: string | null;
+}
 
 type Tone = 'success' | 'failure' | 'pending';
 
@@ -49,10 +58,46 @@ export function ResultPage() {
   const product = useAppSelector((state) => state.product.selected);
   const quantity = useAppSelector((state) => state.product.quantity);
   const deliveryAddress = useAppSelector((state) => state.checkout.deliveryAddress);
+  const transactionId = useAppSelector((state) => state.payment.transactionId);
   const status = useAppSelector((state) => state.payment.status);
   const statusMessage = useAppSelector((state) => state.payment.statusMessage);
   const reference = useAppSelector((state) => state.payment.reference);
   const totalAmountInCents = useAppSelector((state) => state.payment.totalAmountInCents);
+
+  // The client's PENDING status only means "we don't know yet" — it is not
+  // authoritative. A refresh (or landing here right after the payment call)
+  // must not trust the stale, persisted status forever: it has to reconcile
+  // with the backend's GET /transactions/:id, which itself re-checks the
+  // gateway while the transaction is still open. This is what actually makes
+  // the result step resilient to a refresh, instead of getting stuck showing
+  // "Confirming your payment" indefinitely.
+  useEffect(() => {
+    if (!transactionId || status !== TransactionStatus.Pending) return;
+
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
+
+    const poll = async () => {
+      try {
+        const result = await apiClient.get<TransactionStatusResponse>(`/transactions/${transactionId}`);
+        if (cancelled) return;
+        dispatch(transactionStatusUpdated({ status: result.status, statusMessage: result.statusMessage ?? null }));
+        if (result.status === TransactionStatus.Pending) {
+          timer = setTimeout(poll, POLL_INTERVAL_MS);
+        }
+      } catch {
+        // Network hiccup or gateway still thinking — keep trying rather than
+        // leaving the customer stuck on a stale screen.
+        if (!cancelled) timer = setTimeout(poll, POLL_INTERVAL_MS);
+      }
+    };
+
+    poll();
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [transactionId, status, dispatch]);
 
   // RequireTransaction already guards this route, but stay defensive: without
   // a status there is nothing sensible to render.

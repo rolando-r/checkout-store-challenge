@@ -154,4 +154,30 @@ describe('SummaryPage', () => {
 
     expect(await screen.findByText('The payment was declined')).toBeInTheDocument();
   });
+
+  it('goes straight to the result when the Idempotency-Key replays an already-settled transaction, without calling /payment again', async () => {
+    // Simulates: the customer refreshed while a previous "Pay" call was still
+    // in flight, the backend finished settling it as APPROVED on its own,
+    // and the customer came back through checkout and clicked "Pay" again
+    // with the same idempotency key. POST /transactions replays that
+    // now-final transaction instead of creating a new one — this must not
+    // be sent to /payment a second time, or the backend rejects it with a
+    // raw "Transaction is APPROVED, expected PENDING" error.
+    mockedPost.mockResolvedValueOnce({
+      ...transactionResponse,
+      status: 'APPROVED',
+      statusMessage: 'Transaction approved',
+    });
+
+    const { store } = renderPage({ cardToken: 'tok_1', acceptanceToken: 'accept_token_123' });
+
+    await waitFor(() => expect(mockedGet).toHaveBeenCalledWith('/checkout/config'));
+    await userEvent.click(screen.getByRole('button', { name: /Pay \$/ }));
+
+    await waitFor(() => expect(screen.getByText('result page')).toBeInTheDocument());
+
+    expect(mockedPost).toHaveBeenCalledTimes(1);
+    expect(store.getState().payment.status).toBe('APPROVED');
+    expect(store.getState().payment.statusMessage).toBe('Transaction approved');
+  });
 });
