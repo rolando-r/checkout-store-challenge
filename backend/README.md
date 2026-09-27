@@ -256,10 +256,22 @@ Postgres and Wompi with fakes/mocks (`src/transactions/application/testing/fake-
 against a real database; e2e tests (`test/*.e2e-spec.ts`) drive the full
 HTTP surface of the running app.
 
-> Coverage table: run `npm run test:cov` and paste the summary here —
-> the frontend's is already documented in `../frontend/README.md` as a
-> reference for the format. The brief requires **>80%** combined
-> frontend + backend coverage.
+Latest local run (`npm run test:cov`):
+
+| Metric     | Coverage |
+| ---------- | -------- |
+| Statements | 100%     |
+| Branches   | 98.73%   |
+| Functions  | 98.34%   |
+| Lines      | 100%     |
+
+18 suites / 92 tests, all passing. The backend coverage is above the 80% bar
+required by the test brief.
+
+The remaining uncovered branches are limited to two branches in
+`transactions/application/process-payment.use-case.ts` and one branch in
+`transactions/infrastructure/persistence/typeorm-settlement.repository.ts`.
+Re-run `npm run test:cov` to regenerate the coverage report if the code changes.
 
 ## Security
 
