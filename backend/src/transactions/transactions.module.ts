@@ -31,6 +31,7 @@ import { TypeOrmIdempotencyStore } from './infrastructure/persistence/typeorm-id
 import { TypeOrmSettlementRepository } from './infrastructure/persistence/typeorm-settlement.repository';
 import { TypeOrmTransactionRepository } from './infrastructure/persistence/typeorm-transaction.repository';
 import { TransactionsController } from './infrastructure/http/transactions.controller';
+import { CheckoutController } from './infrastructure/http/checkout.controller';
 import { GetCheckoutConfigUseCase } from './application/get-checkout-config.use-case';
 
 @Module({
@@ -40,7 +41,7 @@ import { GetCheckoutConfigUseCase } from './application/get-checkout-config.use-
     StockModule,
     CustomersModule,
   ],
-  controllers: [TransactionsController],
+  controllers: [TransactionsController, CheckoutController],
   providers: [
     {
       provide: TRANSACTION_REPOSITORY,
