@@ -61,7 +61,29 @@ export async function tokenizeCard(publicKey: string, input: TokenizeCardInput):
   return { id: body.data.id, brand: body.data.brand, lastFour: body.data.last_four };
 }
 
+/**
+ * Wompi's field labels for the fields tokenization can reject. Wompi's own
+ * validation strings (e.g. "no debe contener menos de 16 caracteres") never
+ * name the field themselves — that's only in the "messages" map's key — so
+ * without this the person just sees a dangling sentence with no subject.
+ */
+const CARD_FIELD_LABELS: Record<string, string> = {
+  number: 'Card number',
+  cvc: 'Security code',
+  exp_month: 'Expiration month',
+  exp_year: 'Expiration year',
+  card_holder: 'Cardholder name',
+};
+
 function firstErrorMessage(body: WompiTokenResponse | null): string | undefined {
-  const firstField = body?.error?.messages ? Object.values(body.error.messages)[0] : undefined;
-  return firstField?.[0] ?? body?.error?.reason;
+  const messages = body?.error?.messages;
+  if (messages) {
+    const [field, fieldMessages] = Object.entries(messages)[0] ?? [];
+    const message = fieldMessages?.[0];
+    if (field && message) {
+      const label = CARD_FIELD_LABELS[field] ?? field.replace(/_/g, ' ');
+      return `${label} ${message}`;
+    }
+  }
+  return body?.error?.reason;
 }

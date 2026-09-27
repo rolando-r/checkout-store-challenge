@@ -1,0 +1,370 @@
+.page {
+  min-height: 100svh;
+  background: var(--color-bg);
+}
+
+.header {
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding: var(--space-5) var(--space-3) var(--space-4);
+}
+
+.headerInner {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.backButton {
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 0;
+  cursor: pointer;
+  margin-bottom: var(--space-1);
+}
+
+.backButton:hover {
+  color: var(--color-paper);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  width: fit-content;
+  padding: 4px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-mint);
+  color: var(--color-mint-ink);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.subtitle {
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.72);
+  margin: 0;
+  max-width: 48ch;
+}
+
+.content {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--space-4) var(--space-3) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.recap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: var(--color-paper);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-2) var(--space-3);
+}
+
+.recapImage {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: var(--color-stone);
+  flex-shrink: 0;
+}
+
+.recapInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.recapName {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recapMeta {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  color: var(--color-ink-soft);
+}
+
+.recapPrice {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--color-ink);
+  flex-shrink: 0;
+}
+
+.section {
+  background: var(--color-paper);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.detailLine {
+  font-family: var(--font-ui);
+  font-size: 14.5px;
+  color: var(--color-ink-soft);
+  margin: 0;
+}
+
+.cardRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.brandIcon {
+  display: inline-flex;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--color-stone);
+  flex-shrink: 0;
+}
+
+.summaryCard {
+  background: var(--color-paper);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.lineItems {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.lineItem {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.lineItem dt {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--color-ink-soft);
+}
+
+.lineItem dd {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.lineItemTotal {
+  padding-top: var(--space-2);
+  border-top: 1.5px dashed var(--color-stone-dark);
+}
+
+.lineItemTotal dt {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--color-ink);
+}
+
+.lineItemTotal dd {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--color-ink);
+}
+
+.errorBanner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  text-align: center;
+  background: var(--color-paper);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.errorMessage {
+  font-family: var(--font-ui);
+  font-weight: 500;
+  color: var(--color-error);
+  margin: 0;
+}
+
+.retryButton {
+  padding: var(--space-2) var(--space-4);
+  border: 1.5px solid var(--color-ink);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-ink);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.retryButton:hover {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+.submitError {
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--color-error);
+  background: var(--color-error-tint);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  margin: 0;
+}
+
+.payButton {
+  width: 100%;
+  padding: 14px var(--space-3);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-mint);
+  color: var(--color-mint-ink);
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.payButton:hover:not(:disabled) {
+  background: var(--color-mint-strong);
+}
+
+.payButton:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.payButton:disabled {
+  background: var(--color-stone);
+  color: var(--color-ink-soft);
+  cursor: not-allowed;
+}
+
+/* Material "backdrop" pattern: a scrim that blocks the page while the
+   pending transaction is created and settled with the gateway, so the
+   customer can't double-submit and always sees that work is happening. */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 15, 12, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3);
+  z-index: 20;
+}
+
+.backdropCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  background: var(--color-paper);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card-hover);
+  padding: var(--space-5) var(--space-4);
+  max-width: 280px;
+  text-align: center;
+}
+
+.backdropText {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 14.5px;
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid var(--color-stone);
+  border-top-color: var(--color-mint-strong);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (min-width: 700px) {
+  .header {
+    padding: var(--space-6) var(--space-4) var(--space-5);
+  }
+
+  .title {
+    font-size: 40px;
+  }
+
+  .content {
+    padding: var(--space-5) var(--space-4) var(--space-6);
+  }
+
+  .section,
+  .summaryCard {
+    padding: var(--space-4);
+  }
+}

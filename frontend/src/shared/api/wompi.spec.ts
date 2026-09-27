@@ -59,10 +59,18 @@ describe('tokenizeCard', () => {
 
     await expect(
       tokenizeCard('pub_test_123', { number: '1', cvc: '1', expMonth: '1', expYear: '1', cardHolder: 'x' }),
-    ).rejects.toMatchObject({ status: 422, message: 'is not a valid card number' });
+    ).rejects.toMatchObject({ status: 422, message: 'Card number is not a valid card number' });
     await expect(
       tokenizeCard('pub_test_123', { number: '1', cvc: '1', expMonth: '1', expYear: '1', cardHolder: 'x' }),
     ).rejects.toBeInstanceOf(WompiError);
+  });
+
+  it('names the field even when it is not one of the known card fields', async () => {
+    mockFetch(422, { error: { type: 'INPUT_VALIDATION', messages: { exp_year: ['no debe contener menos de 2 caracteres'] } } });
+
+    await expect(
+      tokenizeCard('pub_test_123', { number: '1', cvc: '1', expMonth: '1', expYear: '1', cardHolder: 'x' }),
+    ).rejects.toMatchObject({ message: 'Expiration year no debe contener menos de 2 caracteres' });
   });
 
   it('falls back to a generic message when the gateway response has no details', async () => {
