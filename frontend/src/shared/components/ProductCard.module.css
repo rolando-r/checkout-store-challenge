@@ -1,0 +1,114 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border: 1px solid var(--color-stone);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: var(--color-stone);
+  display: block;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+
+.name {
+  font-family: var(--font-display);
+  font-size: 20px;
+  margin: 0;
+  color: var(--color-ink);
+}
+
+.description {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--color-ink);
+  opacity: 0.75;
+  margin: 0;
+}
+
+.meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.price {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--color-ink);
+}
+
+.stock {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--color-ink);
+  opacity: 0.6;
+}
+
+.stockLow {
+  color: var(--color-error);
+  opacity: 1;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.buyButton {
+  flex: 1 1 auto;
+  min-width: 140px;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius);
+  background: var(--color-primary);
+  color: white;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.buyButton:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.buyButton:disabled {
+  background: var(--color-stone);
+  color: var(--color-ink);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (min-width: 640px) {
+  .card {
+    flex-direction: row;
+  }
+
+  .image {
+    width: 220px;
+    aspect-ratio: 1 / 1;
+    flex-shrink: 0;
+  }
+
+  .body {
+    flex: 1;
+    justify-content: center;
+  }
+}
