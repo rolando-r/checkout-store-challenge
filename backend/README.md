@@ -20,7 +20,7 @@ and the checkout flow it drives.
 | Validation          | `class-validator` / `class-transformer`          |
 | Security headers    | `helmet`                                         |
 | API docs            | `@nestjs/swagger` (OpenAPI, served at `/docs`)   |
-| Payment gateway     | Wompi (sandbox), called over HTTP                |
+| Payment gateway     | Third-party sandbox gateway, called over HTTP    |
 | Testing             | Jest (unit, integration, e2e)                    |
 
 ## API documentation (Postman / Swagger)
@@ -76,7 +76,7 @@ Each business area (`products`, `stock`, `customers`, `transactions`,
 
 Controllers depend only on use cases; use cases depend only on port
 *interfaces*, injected via NestJS DI tokens (`src/shared/tokens.ts`).
-Swapping Postgres/TypeORM for another store, or the Wompi HTTP adapter for a
+Swapping Postgres/TypeORM for another store, or the payment gateway HTTP adapter for a
 different gateway, means writing a new adapter — no use case changes.
 
 ## Railway-Oriented Programming (ROP)
@@ -181,7 +181,7 @@ Notable design choices, straight from the migration
   (`fee-calculator.ts`) — the client only ever *displays* a quote, never
   sets the amount charged.
 - **No raw card data is persisted** — only `card_brand` and `card_last4`
-  for display; the card token comes from Wompi and is used once.
+  for display; the card token comes from the payment gateway and is used once.
 - **`idempotency_keys`** ties a client-supplied `Idempotency-Key` header to
   the transaction it created, so a retried `POST /transactions` (e.g. a
   flaky connection) returns the original transaction instead of creating a
@@ -213,19 +213,19 @@ itself in Docker too, instead of on the host.
 
 See [`.env.example`](./.env.example).
 
-| Variable                  | Purpose                                                        |
-|-----------------------------|-------------------------------------------------------------------|
-| `DATABASE_URL`             | Postgres connection string                                      |
-| `NODE_ENV`                 | `development` enables SQL query logging                         |
-| `PORT`                     | HTTP port (default `3000`)                                      |
-| `CORS_ORIGIN`               | Comma-separated list of allowed origins for the frontend         |
-| `GATEWAY_BASE_URL`          | Wompi API base URL (sandbox or production)                      |
-| `GATEWAY_PUBLIC_KEY`        | Wompi public key, returned to the frontend via `/checkout/config` |
-| `GATEWAY_PRIVATE_KEY`       | Wompi private key, used server-side to create/charge transactions |
-| `GATEWAY_EVENTS_SECRET`     | Verifies Wompi webhook event signatures, if/when enabled          |
-| `GATEWAY_INTEGRITY_SECRET`  | Used to sign the integrity hash Wompi requires per transaction    |
-| `BASE_FEE_IN_CENTS`         | Store's fixed base fee, added to every order                     |
-| `DELIVERY_FEE_IN_CENTS`     | Store's fixed delivery fee, added to every order                 |
+| Variable                    | Purpose                                                                     |
+|-----------------------------|-----------------------------------------------------------------------------|
+| `DATABASE_URL`              | Postgres connection string                                                  |
+| `NODE_ENV`                  | `development` enables SQL query logging                                     |
+| `PORT`                      | HTTP port (default `3000`)                                                  |
+| `CORS_ORIGIN`               | Comma-separated list of allowed origins for the frontend                    |
+| `GATEWAY_BASE_URL`          | Payment gateway API base URL (sandbox or production)                        |
+| `GATEWAY_PUBLIC_KEY`        | Payment gateway public key, returned to the frontend via `/checkout/config` |
+| `GATEWAY_PRIVATE_KEY`       | Payment gateway private key, used server-side to create/charge transactions |
+| `GATEWAY_EVENTS_SECRET`     | Verifies the gateway's webhook event signatures, if/when enabled            |
+| `GATEWAY_INTEGRITY_SECRET`  | Used to sign the integrity hash the gateway requires per transaction        |
+| `BASE_FEE_IN_CENTS`         | Store's fixed base fee, added to every order                                |
+| `DELIVERY_FEE_IN_CENTS`     | Store's fixed delivery fee, added to every order                            |
 
 Startup fails fast with a clear error if any required variable is missing or
 invalid (`src/shared/config/env.validation.ts`).
@@ -250,7 +250,7 @@ invalid (`src/shared/config/env.validation.ts`).
 
 Every use case, controller, repository adapter and shared helper (ROP
 `Result`/`Flow`, fee calculator, error mapper) has unit tests, isolated from
-Postgres and Wompi with fakes/mocks (`src/transactions/application/testing/fake-payment-gateway.ts`,
+Postgres and the payment gateway with fakes/mocks (`src/transactions/application/testing/fake-payment-gateway.ts`,
 `src/shared/testing/result-helpers.ts`). Integration tests
 (`test/*.integration-spec.ts`, if present) exercise the TypeORM repositories
 against a real database; e2e tests (`test/*.e2e-spec.ts`) drive the full
@@ -280,8 +280,8 @@ Re-run `npm run test:cov` to regenerate the coverage report if the code changes.
   (`ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })`).
 - CORS is restricted to `CORS_ORIGIN`, not left open by default in
   production.
-- Card numbers/CVC never reach this API — only a single-use token from
-  Wompi and non-sensitive brand/last-4 digits are stored.
+- Card numbers/CVC never reach this API — only a single-use token from the
+  payment gateway, plus non-sensitive brand/last-4 digits are stored.
 - `GlobalExceptionFilter` ensures unexpected errors return a generic message
   instead of leaking stack traces or internals.
 

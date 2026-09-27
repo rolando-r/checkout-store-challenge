@@ -10,7 +10,7 @@ API reference, data model and Postman/Swagger info.
 
 ## Tech stack
 
-| Concern            | Choice                                   |
+| Concern            | Choice                                    |
 |--------------------|-------------------------------------------|
 | Framework          | React 19 + Vite                           |
 | Language           | TypeScript                                |
@@ -29,7 +29,7 @@ API reference, data model and Postman/Swagger info.
 | # | Route        | Page             | What happens |
 |---|--------------|------------------|--------------|
 | 1 | `/`          | `ProductPage`    | Lists products with stock, description and price from the backend. Picking a quantity and clicking buy stores the selection in Redux and navigates on. |
-| 2 | `/checkout`  | `CheckoutPage`   | Collects the customer's contact info, delivery address and card details. Card number/CVC are validated client-side (Luhn + expiry) and detected as Visa/Mastercard as you type. On submit: creates/updates the customer, tokenizes the card directly against Wompi, then moves on. |
+| 2 | `/checkout`  | `CheckoutPage`   | Collects the customer's contact info, delivery address and card details. Card number/CVC are validated client-side (Luhn + expiry) and detected as Visa/Mastercard as you type. On submit: creates/updates the customer, tokenizes the card directly against the payment gateway, then moves on. |
 | 3 | `/summary`   | `SummaryPage`    | Shows product + delivery + masked card recap and the fee breakdown (product, base fee, delivery fee, total) behind a backdrop while paying. Clicking pay creates a `PENDING` transaction in the backend, then asks it to charge the card. |
 | 4 | `/result`    | `ResultPage`     | Shows the final transaction status (approved / declined / error / voided / pending) with the reference and amount charged. |
 | 5 | `/` again    | `ProductPage`    | "Back to store" clears the whole checkout session and returns to the product list, which re-fetches stock from the backend so the updated quantity is reflected. |
@@ -49,7 +49,7 @@ satisfies the "app must be resilient" requirement.
 
 **Never persisted:** the raw card number and CVC. They only ever exist
 in local component state on `CheckoutPage`, are sent straight from the
-browser to Wompi's tokenization endpoint, and only the resulting
+browser to the gateway's tokenization endpoint, and only the resulting
 single-use token (handed off via router `location.state`, not Redux) plus
 the card brand/last 4 digits for display are kept afterwards. A page
 refresh on the summary screen loses the token on purpose and asks the
@@ -70,14 +70,14 @@ checkout config and payment endpoints to resolve.
 
 See [`.env.example`](./.env.example).
 
-| Variable              | Purpose                                                                 | Default (dev)                                  |
-|------------------------|--------------------------------------------------------------------------|-------------------------------------------------|
-| `VITE_API_BASE_URL`   | Base URL of the backend API                                             | `http://localhost:3000`                        |
-| `VITE_WOMPI_API_URL`  | Wompi sandbox base URL for direct browser→gateway card tokenization     | `https://api-sandbox.co.uat.wompi.dev/v1`      |
+| Variable               | Purpose                                                                           | Default (dev)                         |
+|------------------------|-----------------------------------------------------------------------------------|---------------------------------------|
+| `VITE_API_BASE_URL`    | Base URL of the backend API                                                       | `http://localhost:3000`               |
+| `VITE_GATEWAY_API_URL` | Payment gateway sandbox base URL for direct browser→gateway card tokenization     | `https://api-sandbox.example.dev/v1`  |
 
 ## Scripts
 
-| Command            | Does                                        |
+| Command             | Does                                         |
 |---------------------|----------------------------------------------|
 | `npm run dev`       | Start the Vite dev server                    |
 | `npm run build`     | Type-check and produce a production build    |
@@ -120,7 +120,7 @@ src/
 │   └── payment/
 ├── pages/               # One component per screen (Product/Checkout/Summary/Result)
 ├── shared/
-│   ├── api/             # Backend API client + Wompi tokenization client
+│   ├── api/             # Backend API client + payment gateway tokenization client
 │   ├── components/      # ProductCard, QuantityStepper
 │   ├── hooks/           # useProducts, useCheckoutConfig
 │   ├── lib/             # card.ts (Luhn/brand/expiry), money.ts (formatting)

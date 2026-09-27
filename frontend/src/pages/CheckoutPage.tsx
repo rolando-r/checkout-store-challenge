@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { customerSaved } from '../features/customer/customerSlice';
 import { deliveryDetailsSubmitted } from '../features/checkout/checkoutSlice';
 import { apiClient, ApiError } from '../shared/api/client';
-import { tokenizeCard, WompiError } from '../shared/api/wompi';
+import { tokenizeCard, TokenizationError } from '../shared/api/tokenization';
 import { useCheckoutConfig } from '../shared/hooks/useCheckoutConfig';
 import { formatMoney } from '../shared/lib/money';
 import {
@@ -166,7 +166,7 @@ export function CheckoutPage() {
       navigate('/summary', { state: { cardToken: tokenized.id, acceptanceToken: config.gateway.acceptanceToken } });
     } catch (error) {
       const message =
-        error instanceof ApiError || error instanceof WompiError
+        error instanceof ApiError || error instanceof TokenizationError
           ? error.message
           : 'Something went wrong. Please check your details and try again.';
       setSubmitError(message);

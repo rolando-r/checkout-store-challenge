@@ -21,7 +21,7 @@ export interface GatewayConfig {
 }
 
 /**
- * Human-friendly labels for the field paths Wompi validates on this
+ * Human-friendly labels for the field paths the gateway validates on this
  * gateway's requests. Falls back to a prettified version of the raw
  * field path for anything not explicitly listed here.
  */
@@ -43,7 +43,7 @@ function humanizeField(field: string): string {
   return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
 
-interface WompiErrorBody {
+interface GatewayErrorBody {
   error?: {
     type?: string;
     reason?: string;
@@ -52,14 +52,14 @@ interface WompiErrorBody {
 }
 
 /**
- * Wompi's error envelope isn't uniform: a 404/401/etc. carries its
+ * The gateway's error envelope isn't uniform: a 404/401/etc. carries its
  * explanation in `error.reason`, but a 422 "INPUT_VALIDATION_ERROR"
  * carries it in `error.messages` instead (a map of field -> messages),
  * leaving `reason` empty. Reading only `reason` silently swallows the
  * one case (bad input) that's most useful to surface, and falls back to
  * an opaque "HTTP 422" with no explanation of what was wrong.
  */
-function extractGatewayErrorMessage(body: WompiErrorBody | null, status: number): string {
+function extractGatewayErrorMessage(body: GatewayErrorBody | null, status: number): string {
   const messages = body?.error?.messages;
   if (messages && typeof messages === 'object') {
     const [field, fieldMessages] = Object.entries(messages)[0] ?? [];

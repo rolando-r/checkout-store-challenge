@@ -14,7 +14,7 @@ export interface TokenizedCard {
   lastFour: string;
 }
 
-export class WompiError extends Error {
+export class TokenizationError extends Error {
   readonly status: number;
 
   constructor(status: number, message: string) {
@@ -23,20 +23,20 @@ export class WompiError extends Error {
   }
 }
 
-interface WompiTokenResponse {
+interface TokenizationResponse {
   status?: string;
   data?: { id: string; brand: string; last_four: string };
   error?: { type?: string; reason?: string; messages?: Record<string, string[]> };
 }
 
 /**
- * Tokenizes raw card data directly against Wompi, authenticated with the
+ * Tokenizes raw card data directly against the payment gateway, authenticated with the
  * merchant's PUBLIC key. This card data never touches our own backend —
  * only the resulting single-use token does — so the card number and CVC
  * never enter our servers or our persisted app state.
  */
 export async function tokenizeCard(publicKey: string, input: TokenizeCardInput): Promise<TokenizedCard> {
-  const response = await fetch(`${config.wompiApiUrl}/tokens/cards`, {
+  const response = await fetch(`${config.gatewayApiUrl}/tokens/cards`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -51,18 +51,18 @@ export async function tokenizeCard(publicKey: string, input: TokenizeCardInput):
     }),
   });
 
-  const body: WompiTokenResponse | null = await response.json().catch(() => null);
+  const body: TokenizationResponse | null = await response.json().catch(() => null);
 
   if (!response.ok || body?.status !== 'CREATED' || !body.data) {
     const message = firstErrorMessage(body) ?? 'The card could not be verified. Check the details and try again.';
-    throw new WompiError(response.status, message);
+    throw new TokenizationError(response.status, message);
   }
 
   return { id: body.data.id, brand: body.data.brand, lastFour: body.data.last_four };
 }
 
 /**
- * Wompi's field labels for the fields tokenization can reject. Wompi's own
+ * The gateway's field labels for the fields tokenization can reject. Its own
  * validation strings (e.g. "no debe contener menos de 16 caracteres") never
  * name the field themselves — that's only in the "messages" map's key — so
  * without this the person just sees a dangling sentence with no subject.
@@ -75,7 +75,7 @@ const CARD_FIELD_LABELS: Record<string, string> = {
   card_holder: 'Cardholder name',
 };
 
-function firstErrorMessage(body: WompiTokenResponse | null): string | undefined {
+function firstErrorMessage(body: TokenizationResponse | null): string | undefined {
   const messages = body?.error?.messages;
   if (messages) {
     const [field, fieldMessages] = Object.entries(messages)[0] ?? [];

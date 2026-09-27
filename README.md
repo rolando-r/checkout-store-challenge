@@ -85,7 +85,7 @@ The frontend build accepts these Vite variables as Docker build arguments:
 
 ```text
 VITE_API_BASE_URL
-VITE_WOMPI_API_URL
+VITE_GATEWAY_API_URL
 ```
 
 For example:
@@ -93,7 +93,7 @@ For example:
 ```bash
 docker compose build \
   --build-arg VITE_API_BASE_URL=http://localhost:3000 \
-  --build-arg VITE_WOMPI_API_URL=https://api-sandbox.co.uat.wompi.dev/v1 \
+  --build-arg VITE_GATEWAY_API_URL=https://api-sandbox.example.dev/v1 \
   frontend
 
 docker compose up -d
@@ -160,7 +160,7 @@ e2e suites. Coverage tables live in each app's README:
 * **Frontend:** `frontend/Dockerfile` uses a multi-stage Node.js + Nginx build.
   The resulting image contains only the compiled Vite application and Nginx
   runtime.
-* **Frontend configuration:** `VITE_API_BASE_URL` and `VITE_WOMPI_API_URL`
+* **Frontend configuration:** `VITE_API_BASE_URL` and `VITE_GATEWAY_API_URL`
   are injected at build time because Vite embeds `VITE_*` variables into the
   generated frontend bundle.
 * **Nginx:** the production frontend serves on port `8080`, provides SPA

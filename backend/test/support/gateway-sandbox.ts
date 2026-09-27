@@ -6,7 +6,7 @@ export interface TestCard {
   cardHolder: string;
 }
 
-/** Confirmed in Wompi's own sandbox docs: any other card number results in ERROR. */
+/** Confirmed in the gateway's own sandbox docs: any other card number results in ERROR. */
 export const APPROVED_TEST_CARD: TestCard = {
   number: '4242424242424242',
   cvc: '123',

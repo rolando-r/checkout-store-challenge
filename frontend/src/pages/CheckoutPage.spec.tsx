@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { Route, Routes } from 'react-router-dom';
 import { renderWithProviders } from '../test/render';
 import { apiClient, ApiError } from '../shared/api/client';
-import { tokenizeCard, WompiError } from '../shared/api/wompi';
+import { tokenizeCard, TokenizationError } from '../shared/api/tokenization';
 import { CheckoutPage } from './CheckoutPage';
 
 jest.mock('../shared/api/client', () => ({
@@ -11,9 +11,9 @@ jest.mock('../shared/api/client', () => ({
   ApiError: jest.requireActual('../shared/api/client').ApiError,
 }));
 
-jest.mock('../shared/api/wompi', () => ({
+jest.mock('../shared/api/tokenization', () => ({
   tokenizeCard: jest.fn(),
-  WompiError: jest.requireActual('../shared/api/wompi').WompiError,
+  TokenizationError: jest.requireActual('../shared/api/tokenization').TokenizationError,
 }));
 
 const mockedGet = apiClient.get as jest.MockedFunction<typeof apiClient.get>;
@@ -132,7 +132,7 @@ describe('CheckoutPage', () => {
 
   it('shows an inline error when the gateway rejects the card', async () => {
     mockedPost.mockResolvedValueOnce({ id: 'cust_1', fullName: 'Jane Doe', email: 'jane@example.com', phone: '3001234567' });
-    mockedTokenize.mockRejectedValueOnce(new WompiError(422, 'The card was declined'));
+    mockedTokenize.mockRejectedValueOnce(new TokenizationError(422, 'The card was declined'));
 
     renderPage();
     await waitFor(() => expect(mockedGet).toHaveBeenCalledWith('/checkout/config'));
