@@ -25,5 +25,16 @@ services:
       postgres:
         condition: service_healthy
 
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:3000
+        VITE_WOMPI_API_URL: https://api-sandbox.co.uat.wompi.dev/v1
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend
+
 volumes:
   pgdata:
