@@ -1,51 +1,76 @@
 .page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding: var(--space-3);
-  max-width: 900px;
-  margin: 0 auto;
   min-height: 100svh;
   background: var(--color-bg);
-  box-sizing: border-box;
 }
 
 .header {
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding: var(--space-5) var(--space-3) var(--space-4);
+}
+
+.headerInner {
+  max-width: 960px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
+  gap: var(--space-2);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
   gap: var(--space-1);
+  width: fit-content;
+  padding: 4px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-mint);
+  color: var(--color-mint-ink);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .title {
   font-family: var(--font-display);
-  font-size: 28px;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
   margin: 0;
-  color: var(--color-ink);
 }
 
 .subtitle {
   font-family: var(--font-ui);
-  font-size: 14px;
-  color: var(--color-ink);
-  opacity: 0.7;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.72);
   margin: 0;
+  max-width: 48ch;
+}
+
+.content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--space-4) var(--space-3) var(--space-6);
 }
 
 .list {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: var(--space-3);
 }
 
 .status {
   font-family: var(--font-ui);
   text-align: center;
-  padding: var(--space-5) var(--space-3);
-  color: var(--color-ink);
-  opacity: 0.7;
+  padding: var(--space-6) var(--space-3);
+  color: var(--color-ink-soft);
 }
 
 .errorBox {
@@ -53,28 +78,49 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-5) var(--space-3);
+  padding: var(--space-6) var(--space-3);
   text-align: center;
 }
 
 .errorMessage {
   font-family: var(--font-ui);
+  font-weight: 500;
   color: var(--color-error);
   margin: 0;
 }
 
 .retryButton {
   padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--color-primary);
-  border-radius: var(--radius);
+  border: 1.5px solid var(--color-ink);
+  border-radius: var(--radius-pill);
   background: transparent;
-  color: var(--color-primary);
+  color: var(--color-ink);
   font-family: var(--font-ui);
   font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .retryButton:hover {
-  background: var(--color-primary);
-  color: white;
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+@media (min-width: 700px) {
+  .header {
+    padding: var(--space-6) var(--space-4) var(--space-5);
+  }
+
+  .title {
+    font-size: 40px;
+  }
+
+  .content {
+    padding: var(--space-5) var(--space-4) var(--space-6);
+  }
+
+  .list {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

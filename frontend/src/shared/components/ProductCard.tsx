@@ -16,18 +16,24 @@ export function ProductCard({ product, onBuy }: ProductCardProps) {
   const outOfStock = product.availableUnits === 0;
   const lowStock = !outOfStock && product.availableUnits <= LOW_STOCK_THRESHOLD;
 
+  const badgeClassName = [
+    styles.stockBadge,
+    outOfStock ? styles.stockBadgeOut : '',
+    lowStock ? styles.stockBadgeLow : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
     <li className={styles.card}>
-      <img className={styles.image} src={product.imageUrl} alt={product.name} loading="lazy" />
+      <div className={styles.imageWrap}>
+        <img className={styles.image} src={product.imageUrl} alt={product.name} loading="lazy" />
+        <span className={badgeClassName}>{outOfStock ? 'Out of stock' : `${product.availableUnits} in stock`}</span>
+      </div>
       <div className={styles.body}>
         <h2 className={styles.name}>{product.name}</h2>
         <p className={styles.description}>{product.description}</p>
-        <div className={styles.meta}>
-          <span className={styles.price}>{formatMoney(product.priceInCents, product.currency)}</span>
-          <span className={`${styles.stock} ${lowStock ? styles.stockLow : ''}`}>
-            {outOfStock ? 'Out of stock' : `${product.availableUnits} in stock`}
-          </span>
-        </div>
+        <span className={styles.price}>{formatMoney(product.priceInCents, product.currency)}</span>
         <div className={styles.controls}>
           <QuantityStepper
             value={quantity}
