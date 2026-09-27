@@ -7,8 +7,8 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     define: {
       'process.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL ?? 'http://localhost:3000'),
-      'process.env.VITE_WOMPI_API_URL': JSON.stringify(
-        env.VITE_WOMPI_API_URL ?? 'https://api-sandbox.co.uat.wompi.dev/v1',
+      'process.env.VITE_GATEWAY_API_URL': JSON.stringify(
+        env.VITE_GATEWAY_API_URL ?? 'https://api-sandbox.example.dev/v1',
       ),
     },
   };

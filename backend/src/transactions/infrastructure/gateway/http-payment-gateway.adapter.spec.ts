@@ -3,7 +3,7 @@ import { GatewayRejectedError } from '../../../shared/errors/domain-error';
 import { HttpPaymentGateway } from './http-payment-gateway.adapter';
 
 const config = {
-  baseUrl: 'https://api-sandbox.co.uat.wompi.dev/v1',
+  baseUrl: 'https://api-sandbox.example.dev/v1',
   publicKey: 'pub_stagtest_123',
   privateKey: 'prv_stagtest_123',
   integritySecret: 'integrity_123',
