@@ -18,29 +18,37 @@ stock updated at the end.
 
 `docker-compose.yml` at the repo root provides PostgreSQL, the backend API, and the production-built frontend.
 
+Gateway configuration: The .env.example files use default gateway values. Update the gateway environment variables with the credentials and API URL provided by your payment gateway to connect to the desired environment. When using Docker, the frontend gateway configuration must be provided at build time.
+
 ### Option A — Apps on the host, Postgres in Docker (recommended for development)
 
 ```bash
-# 1. Start the database
-docker compose up -d postgres
-
-# 2. Backend
+# 1. Backend environment
 cd backend
 npm install
 cp .env.example .env
+
+# 2. Start the database
+cd ..
+docker compose up -d postgres
+
+# 3. Run migrations and seed
+cd backend
 npm run migration:run
 npm run seed
 npm run start:dev
 # http://localhost:3000
 # Swagger: http://localhost:3000/docs
 
-# 3. Frontend, in a second terminal
+# 4. Frontend, in a second terminal
 cd frontend
 npm install
 cp .env.example .env
 npm run dev
 # http://localhost:5173
 ```
+
+Gateway configuration: The .env.example files use placeholder/sandbox gateway values. Update the gateway environment variables with the credentials and API URL provided by your payment gateway to connect to the desired environment.
 
 Running the applications on the host provides hot reload and is better suited
 for active development.
@@ -109,25 +117,6 @@ npm install
 cp .env.example .env
 npm run migration:run
 npm run seed
-```
-
-### Option C — Frontend only with Docker
-
-The frontend can also be built independently from the repository root:
-
-```bash
-docker build \
-  --build-arg VITE_API_BASE_URL=http://localhost:3000 \
-  --build-arg VITE_WOMPI_API_URL=https://api-sandbox.co.uat.wompi.dev/v1 \
-  -t checkout-store-frontend ./frontend
-
-docker run --rm -p 8080:8080 checkout-store-frontend
-```
-
-Then open:
-
-```text
-http://localhost:8080
 ```
 
 ## API documentation
