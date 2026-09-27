@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { CheckoutStep, stepChanged } from '../features/checkout/checkoutSlice';
-import { transactionCreated, transactionStatusUpdated, type TransactionStatus } from '../features/payment/paymentSlice';
+import { transactionCreated, transactionStatusUpdated, TransactionStatus } from '../features/payment/paymentSlice';
 import { apiClient, ApiError } from '../shared/api/client';
 import { useCheckoutConfig } from '../shared/hooks/useCheckoutConfig';
 import { formatMoney } from '../shared/lib/money';
@@ -89,6 +89,24 @@ export function SummaryPage() {
           totalAmountInCents: transaction.amounts.totalAmountInCents,
         }),
       );
+
+      // The Idempotency-Key is reused if the customer refreshed mid-payment
+      // and came back through this form again. In that case /transactions
+      // doesn't create anything new — it replays whatever transaction that
+      // key already produced, which may have finished (approved/declined)
+      // on the backend even though this browser never saw the result. Only
+      // a still-PENDING transaction is safe to send to the gateway; a final
+      // one must go straight to its existing result instead of being paid
+      // again, or the backend correctly (but confusingly, from the
+      // customer's point of view) rejects it as "not PENDING".
+      if (transaction.status !== TransactionStatus.Pending) {
+        dispatch(
+          transactionStatusUpdated({ status: transaction.status, statusMessage: transaction.statusMessage ?? null }),
+        );
+        dispatch(stepChanged(CheckoutStep.Result));
+        navigate('/result');
+        return;
+      }
 
       const paid = await apiClient.post<TransactionResponse>(`/transactions/${transaction.id}/payment`, {
         cardToken: handoff.cardToken,

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ProductWithStock } from '../hooks/useProducts';
+import { MAX_QUANTITY_PER_ORDER } from '../config';
 import { formatMoney } from '../lib/money';
 import { QuantityStepper } from './QuantityStepper';
 import styles from './ProductCard.module.css';
@@ -15,6 +16,10 @@ export function ProductCard({ product, onBuy }: ProductCardProps) {
   const [quantity, setQuantity] = useState(1);
   const outOfStock = product.availableUnits === 0;
   const lowStock = !outOfStock && product.availableUnits <= LOW_STOCK_THRESHOLD;
+  // Cap at whichever is smaller: what's left in stock, or the per-order
+  // limit the backend enforces. Otherwise a customer buying a well-stocked
+  // product can pick a quantity that only fails once they reach payment.
+  const maxOrderable = Math.max(Math.min(product.availableUnits, MAX_QUANTITY_PER_ORDER), 1);
 
   const badgeClassName = [
     styles.stockBadge,
@@ -37,7 +42,7 @@ export function ProductCard({ product, onBuy }: ProductCardProps) {
         <div className={styles.controls}>
           <QuantityStepper
             value={quantity}
-            max={Math.max(product.availableUnits, 1)}
+            max={maxOrderable}
             onChange={setQuantity}
             disabled={outOfStock}
             label={`${product.name} quantity`}
