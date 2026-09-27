@@ -20,6 +20,55 @@ export interface GatewayConfig {
   integritySecret: string;
 }
 
+/**
+ * Human-friendly labels for the field paths Wompi validates on this
+ * gateway's requests. Falls back to a prettified version of the raw
+ * field path for anything not explicitly listed here.
+ */
+const FIELD_LABELS: Record<string, string> = {
+  amount_in_cents: 'Amount',
+  currency: 'Currency',
+  customer_email: 'Customer email',
+  reference: 'Reference',
+  acceptance_token: 'Acceptance token',
+  signature: 'Signature',
+  'payment_method.token': 'Card token',
+  'payment_method.installments': 'Installments',
+};
+
+function humanizeField(field: string): string {
+  if (FIELD_LABELS[field]) return FIELD_LABELS[field];
+  const leaf = field.split('.').pop() ?? field;
+  const spaced = leaf.replace(/_/g, ' ');
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+}
+
+interface WompiErrorBody {
+  error?: {
+    type?: string;
+    reason?: string;
+    messages?: Record<string, string[]>;
+  };
+}
+
+/**
+ * Wompi's error envelope isn't uniform: a 404/401/etc. carries its
+ * explanation in `error.reason`, but a 422 "INPUT_VALIDATION_ERROR"
+ * carries it in `error.messages` instead (a map of field -> messages),
+ * leaving `reason` empty. Reading only `reason` silently swallows the
+ * one case (bad input) that's most useful to surface, and falls back to
+ * an opaque "HTTP 422" with no explanation of what was wrong.
+ */
+function extractGatewayErrorMessage(body: WompiErrorBody | null, status: number): string {
+  const messages = body?.error?.messages;
+  if (messages && typeof messages === 'object') {
+    const [field, fieldMessages] = Object.entries(messages)[0] ?? [];
+    const message = Array.isArray(fieldMessages) ? fieldMessages[0] : undefined;
+    if (field && message) return `${humanizeField(field)} ${message}`;
+  }
+  return body?.error?.reason ?? `HTTP ${status}`;
+}
+
 export class HttpPaymentGateway implements PaymentGatewayPort {
   constructor(private readonly config: GatewayConfig) {}
 
@@ -50,7 +99,7 @@ export class HttpPaymentGateway implements PaymentGatewayPort {
 
       const body = await response.json();
       if (!response.ok) {
-        return err(new GatewayRejectedError(body?.error?.reason ?? `HTTP ${response.status}`));
+        return err(new GatewayRejectedError(extractGatewayErrorMessage(body, response.status)));
       }
 
       const data = body.data;
@@ -75,7 +124,7 @@ export class HttpPaymentGateway implements PaymentGatewayPort {
       });
       const body = await response.json();
       if (!response.ok) {
-        return err(new GatewayRejectedError(body?.error?.reason ?? `HTTP ${response.status}`));
+        return err(new GatewayRejectedError(extractGatewayErrorMessage(body, response.status)));
       }
 
       const data = body.data;
@@ -90,7 +139,7 @@ export class HttpPaymentGateway implements PaymentGatewayPort {
       const response = await fetch(`${this.config.baseUrl}/merchants/${this.config.publicKey}`);
       const body = await response.json();
       if (!response.ok) {
-        return err(new GatewayRejectedError(body?.error?.reason ?? `HTTP ${response.status}`));
+        return err(new GatewayRejectedError(extractGatewayErrorMessage(body, response.status)));
       }
       return ok(body.data.presigned_acceptance.acceptance_token);
     } catch {
