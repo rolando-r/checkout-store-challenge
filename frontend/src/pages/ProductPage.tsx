@@ -19,32 +19,37 @@ export function ProductPage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Store</h1>
-        <p className={styles.subtitle}>Pick a product and pay securely with your credit card.</p>
+        <div className={styles.headerInner}>
+          <span className={styles.badge}>Secure checkout</span>
+          <h1 className={styles.title}>Store</h1>
+          <p className={styles.subtitle}>Pick a product and pay securely with your credit card.</p>
+        </div>
       </header>
 
-      {isLoading && <p className={styles.status}>Loading products…</p>}
+      <div className={styles.content}>
+        {isLoading && <p className={styles.status}>Loading products…</p>}
 
-      {isError && (
-        <div className={styles.errorBox}>
-          <p className={styles.errorMessage}>{error}</p>
-          <button type="button" className={styles.retryButton} onClick={() => refetch()}>
-            Try again
-          </button>
-        </div>
-      )}
+        {isError && (
+          <div className={styles.errorBox}>
+            <p className={styles.errorMessage}>{error}</p>
+            <button type="button" className={styles.retryButton} onClick={() => refetch()}>
+              Try again
+            </button>
+          </div>
+        )}
 
-      {!isLoading && !isError && products.length === 0 && (
-        <p className={styles.status}>There are no products available right now.</p>
-      )}
+        {!isLoading && !isError && products.length === 0 && (
+          <p className={styles.status}>There are no products available right now.</p>
+        )}
 
-      {!isLoading && !isError && products.length > 0 && (
-        <ul className={styles.list}>
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} onBuy={handleBuy} />
-          ))}
-        </ul>
-      )}
+        {!isLoading && !isError && products.length > 0 && (
+          <ul className={styles.list}>
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} onBuy={handleBuy} />
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

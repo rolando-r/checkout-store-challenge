@@ -1,12 +1,20 @@
 :root {
-  --color-ink: #1C1B1F;
-  --color-bg: #FAF9F6;
-  --color-primary: #2F5D50;
-  --color-primary-hover: #3D7A6A;
-  --color-stone: #E8E4DB;
-  --color-error: #C1443C;
+  --color-ink: #0E0F0C;
+  --color-ink-soft: #4A4D46;
+  --color-paper: #FFFFFF;
+  --color-bg: #F5F6F3;
+  --color-stone: #E4E6DF;
+  --color-stone-dark: #CDD0C6;
 
-  --font-display: 'Fraunces', Georgia, serif;
+  --color-mint: #00E28A;
+  --color-mint-strong: #00C97B;
+  --color-mint-ink: #04211A;
+  --color-mint-tint: #E3FBF1;
+
+  --color-error: #E5484D;
+  --color-error-tint: #FDECEC;
+
+  --font-display: 'Sora', 'Inter', -apple-system, sans-serif;
   --font-ui: 'Inter', -apple-system, sans-serif;
 
   --space-1: 4px;
@@ -14,6 +22,28 @@
   --space-3: 16px;
   --space-4: 24px;
   --space-5: 40px;
+  --space-6: 64px;
 
-  --radius: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1px 2px rgba(14, 15, 12, 0.04), 0 8px 24px rgba(14, 15, 12, 0.06);
+  --shadow-card-hover: 0 2px 4px rgba(14, 15, 12, 0.06), 0 16px 32px rgba(14, 15, 12, 0.1);
+
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  font-family: var(--font-ui);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

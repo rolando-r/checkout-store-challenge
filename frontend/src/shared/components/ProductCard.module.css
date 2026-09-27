@@ -1,18 +1,55 @@
 .card {
   display: flex;
   flex-direction: column;
-  background: white;
-  border: 1px solid var(--color-stone);
-  border-radius: var(--radius);
+  background: var(--color-paper);
+  border-radius: var(--radius-lg);
   overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card:has(.buyButton:not(:disabled):hover) {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+}
+
+.imageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--color-stone);
 }
 
 .image {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  height: 100%;
   object-fit: cover;
-  background: var(--color-stone);
   display: block;
+}
+
+.stockBadge {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  padding: 4px var(--space-2);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  background: var(--color-mint-tint);
+  color: var(--color-mint-ink);
+}
+
+.stockBadgeLow {
+  background: var(--color-error-tint);
+  color: var(--color-error);
+}
+
+.stockBadgeOut {
+  background: var(--color-stone);
+  color: var(--color-ink-soft);
 }
 
 .body {
@@ -20,95 +57,77 @@
   flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-3);
+  flex: 1;
 }
 
 .name {
   font-family: var(--font-display);
-  font-size: 20px;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
   margin: 0;
   color: var(--color-ink);
 }
 
 .description {
   font-family: var(--font-ui);
-  font-size: 14px;
-  color: var(--color-ink);
-  opacity: 0.75;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--color-ink-soft);
   margin: 0;
-}
-
-.meta {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .price {
-  font-family: var(--font-ui);
+  font-family: var(--font-display);
   font-weight: 700;
-  font-size: 18px;
+  font-size: 20px;
   color: var(--color-ink);
-}
-
-.stock {
-  font-family: var(--font-ui);
-  font-size: 13px;
-  color: var(--color-ink);
-  opacity: 0.6;
-}
-
-.stockLow {
-  color: var(--color-error);
-  opacity: 1;
+  margin-top: var(--space-1);
 }
 
 .controls {
+  margin-top: auto;
+  padding-top: var(--space-2);
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   gap: var(--space-2);
-  flex-wrap: wrap;
 }
 
 .buyButton {
-  flex: 1 1 auto;
-  min-width: 140px;
-  padding: var(--space-2) var(--space-3);
+  width: 100%;
+  padding: 12px var(--space-3);
   border: none;
-  border-radius: var(--radius);
-  background: var(--color-primary);
-  color: white;
+  border-radius: var(--radius-pill);
+  background: var(--color-mint);
+  color: var(--color-mint-ink);
   font-family: var(--font-ui);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 15px;
   cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
 }
 
 .buyButton:hover:not(:disabled) {
-  background: var(--color-primary-hover);
+  background: var(--color-mint-strong);
+}
+
+.buyButton:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .buyButton:disabled {
   background: var(--color-stone);
-  color: var(--color-ink);
-  opacity: 0.6;
+  color: var(--color-ink-soft);
   cursor: not-allowed;
 }
 
-@media (min-width: 640px) {
-  .card {
-    flex-direction: row;
-  }
-
-  .image {
-    width: 220px;
-    aspect-ratio: 1 / 1;
-    flex-shrink: 0;
-  }
-
+@media (min-width: 700px) {
   .body {
-    flex: 1;
-    justify-content: center;
+    padding: var(--space-4);
   }
 }
