@@ -1,0 +1,16 @@
+# cp terraform.tfvars.example terraform.tfvars
+# Fill in the real values, then leave terraform.tfvars OUT of git
+# (it's already covered by the .gitignore rule added below).
+
+aws_region       = "us-east-1"
+key_name         = "your-ec2-keypair-name"
+ssh_allowed_cidr = "203.0.113.10/32" # your current public IP + /32
+git_repo_url     = "https://github.com/your-user/checkout-store-challenge.git"
+
+db_password = "choose-a-strong-password-here"
+
+gateway_base_url         = "https://api-sandbox.co.uat.gateway.dev/v1"
+gateway_public_key       = "pub_stagtest_xxxxxxxxxxxxxxxxxxxxxxxx"
+gateway_private_key      = "prv_stagtest_xxxxxxxxxxxxxxxxxxxxxxxx"
+gateway_events_secret    = "stagtest_events_xxxxxxxxxxxxxxxxxxxxxxxx"
+gateway_integrity_secret = "stagtest_integrity_xxxxxxxxxxxxxxxxxxxxxxxx"
