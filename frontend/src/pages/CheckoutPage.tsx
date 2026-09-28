@@ -15,7 +15,11 @@ import {
   isValidCvc,
   isValidExpiry,
 } from '../shared/lib/card';
+import { ProductImage } from '../shared/components/ProductImage';
 import styles from './CheckoutPage.module.css';
+
+// 48px thumbnail at 1x/2x/3x density.
+const THUMB_WIDTHS = [48, 96, 144] as const;
 
 interface FormState {
   fullName: string;
@@ -190,7 +194,9 @@ export function CheckoutPage() {
 
       <div className={styles.content}>
         <div className={styles.recap}>
-          <img className={styles.recapImage} src={product.imageUrl} alt={product.name} />
+          <div className={styles.recapImage}>
+            <ProductImage src={product.imageUrl} alt={product.name} widths={THUMB_WIDTHS} sizes="48px" />
+          </div>
           <div className={styles.recapInfo}>
             <span className={styles.recapName}>{product.name}</span>
             <span className={styles.recapMeta}>Qty {quantity}</span>

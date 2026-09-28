@@ -90,7 +90,7 @@
 .recapImage {
   width: 48px;
   height: 48px;
-  object-fit: cover;
+  overflow: hidden;
   border-radius: var(--radius-sm);
   background: var(--color-stone);
   flex-shrink: 0;

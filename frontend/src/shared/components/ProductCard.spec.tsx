@@ -60,6 +60,23 @@ describe('ProductCard', () => {
     expect(increment).toBeDisabled();
   });
 
+  it('lazy-loads the product image by default', () => {
+    renderCard();
+    expect(screen.getByAltText('Headphones')).toHaveAttribute('loading', 'lazy');
+  });
+
+  it('loads the image eagerly when the card is flagged as priority', () => {
+    const onBuy = jest.fn();
+    render(
+      <ul>
+        <ProductCard product={product} onBuy={onBuy} priority />
+      </ul>,
+    );
+    const img = screen.getByAltText('Headphones');
+    expect(img).toHaveAttribute('loading', 'eager');
+    expect(img).toHaveAttribute('fetchpriority', 'high');
+  });
+
   it('disables buying when the product is out of stock', () => {
     renderCard({ availableUnits: 0 });
     expect(screen.getByText('Out of stock')).toBeInTheDocument();
