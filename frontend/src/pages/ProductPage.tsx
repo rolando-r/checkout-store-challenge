@@ -44,8 +44,8 @@ export function ProductPage() {
 
         {!isLoading && !isError && products.length > 0 && (
           <ul className={styles.list}>
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} onBuy={handleBuy} />
+            {products.map((product, index) => (
+              <ProductCard key={product.id} product={product} onBuy={handleBuy} priority={index === 0} />
             ))}
           </ul>
         )}

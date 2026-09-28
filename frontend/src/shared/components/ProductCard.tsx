@@ -3,16 +3,22 @@ import type { ProductWithStock } from '../hooks/useProducts';
 import { MAX_QUANTITY_PER_ORDER } from '../config';
 import { formatMoney } from '../lib/money';
 import { QuantityStepper } from './QuantityStepper';
+import { ProductImage } from './ProductImage';
 import styles from './ProductCard.module.css';
 
 const LOW_STOCK_THRESHOLD = 5;
 
+// One column up to 700px (full width), two columns after that (max 960px container).
+const IMAGE_SIZES = '(min-width: 700px) 480px, 100vw';
+
 interface ProductCardProps {
   product: ProductWithStock;
   onBuy: (product: ProductWithStock, quantity: number) => void;
+  /** Above-the-fold card: its image is loaded eagerly with high priority. */
+  priority?: boolean;
 }
 
-export function ProductCard({ product, onBuy }: ProductCardProps) {
+export function ProductCard({ product, onBuy, priority = false }: ProductCardProps) {
   const [quantity, setQuantity] = useState(1);
   const outOfStock = product.availableUnits === 0;
   const lowStock = !outOfStock && product.availableUnits <= LOW_STOCK_THRESHOLD;
@@ -32,7 +38,7 @@ export function ProductCard({ product, onBuy }: ProductCardProps) {
   return (
     <li className={styles.card}>
       <div className={styles.imageWrap}>
-        <img className={styles.image} src={product.imageUrl} alt={product.name} loading="lazy" />
+        <ProductImage src={product.imageUrl} alt={product.name} sizes={IMAGE_SIZES} priority={priority} />
         <span className={badgeClassName}>{outOfStock ? 'Out of stock' : `${product.availableUnits} in stock`}</span>
       </div>
       <div className={styles.body}>

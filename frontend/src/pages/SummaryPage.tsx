@@ -6,7 +6,11 @@ import { transactionCreated, transactionStatusUpdated, TransactionStatus } from 
 import { apiClient, ApiError } from '../shared/api/client';
 import { useCheckoutConfig } from '../shared/hooks/useCheckoutConfig';
 import { formatMoney } from '../shared/lib/money';
+import { ProductImage } from '../shared/components/ProductImage';
 import styles from './SummaryPage.module.css';
+
+// 48px thumbnail at 1x/2x/3x density.
+const THUMB_WIDTHS = [48, 96, 144] as const;
 
 interface PaymentHandoff {
   cardToken?: string;
@@ -141,7 +145,9 @@ export function SummaryPage() {
 
       <div className={styles.content}>
         <div className={styles.recap}>
-          <img className={styles.recapImage} src={product.imageUrl} alt={product.name} />
+          <div className={styles.recapImage}>
+            <ProductImage src={product.imageUrl} alt={product.name} widths={THUMB_WIDTHS} sizes="48px" />
+          </div>
           <div className={styles.recapInfo}>
             <span className={styles.recapName}>{product.name}</span>
             <span className={styles.recapMeta}>Qty {quantity}</span>
